@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrazione - SIW Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div th:insert="~{fragments/navbar :: nav}"></div>
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">📝 Registrati a SIW Library</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Messaggi di errore -->
+                        <div class="alert alert-danger" th:if="${error}">
+                            <strong>⚠️ Errore!</strong> <span th:text="${error}"></span>
+                        </div>
+                        
+                        <!-- Messaggi di successo -->
+                        <div class="alert alert-success" th:if="${success}">
+                            <strong>✅ Successo!</strong> <span th:text="${success}"></span>
+                        </div>
+                        
+                        <form th:action="@{/register}" method="post" th:object="${credentials}">
+                            
+                            <!-- Nome -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       placeholder="Il tuo nome" required>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="tua.email@esempio.com" required>
+                            </div>
+                            
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}" 
+                                       placeholder="Scegli un username" required>
+                                <div class="form-text">Minimo 4 caratteri</div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}" 
+                                       placeholder="Crea una password" required>
+                                <div class="form-text">Minimo 3 caratteri</div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                            </div>
+                            
+                            <!-- Conferma Password -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Conferma Password *</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                       placeholder="Ripeti la password" required>
+                            </div>
+                            
+                            <!-- Errori di validazione -->
+                            <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+                                <strong>Errori di validazione:</strong>
+                                <ul class="mb-0">
+                                    <li th:each="error : ${#fields.globalErrors()}" th:text="${error}"></li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Pulsante registrazione -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">Registrati</button>
+                            </div>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <p>Hai già un account? <a th:href="@{/login}">Accedi qui</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

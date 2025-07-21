@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIW Library - Libri</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Stile verticale per le copertine */
+        .book-cover {
+            width: 150px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            background: #f8f9fa;
+        }
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+        .book-card .card-body {
+            width: 100%;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        /* ✅ SISTEMA STELLE CORRETTO */
+        .stars-container {
+            position: relative;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+        
+        .star-filled {
+            color: #ffc107 !important;
+            text-shadow: 0 0 2px rgba(255, 193, 7, 0.5);
+        }
+        
+        .star-half {
+            position: relative;
+            display: inline-block;
+            color: #e9ecef;
+        }
+
+        .star-half::before {
+            content: '★';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            overflow: hidden;
+            color: #ffc107;
+            text-shadow: 0 0 2px rgba(255, 193, 7, 0.5);
+        }
+        
+        .star-empty {
+            color: #e9ecef !important;
+            opacity: 0.3;
+        }
+        
+        /* Allineamento campi di ricerca */
+        .search-form .form-control {
+            height: 38px;
+        }
+        .search-form .btn {
+            height: 38px;
+        }
+        
+        /* CSS per il menu di ordinamento */
+        .dropdown-item.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .dropdown-item.active:hover {
+            background-color: #0a58ca;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="~{fragments/navbar :: nav}"></div>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Sezione titolo con menu di ordinamento -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1>📚 Libri</h1>
+                    
+                    <!-- Menu di ordinamento con pulsante inversione -->
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort"></i> Ordina per
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                <!-- INSERIMENTO (era "Ordine predefinito") -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='insertion', sortDirection='desc')}"
+                                       th:classappend="${currentSort == null ? 'active' : ''}">
+                                        🆕 Inserimento (dal più recente)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='insertion', sortDirection='desc')}"
+                                       th:classappend="${currentSort == null ? 'active' : ''}">
+                                        🆕 Inserimento (dal più recente)
+                                    </a>
+                                </li>
+                                
+                                <!-- TITOLO -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='title', sortDirection='asc')}"
+                                       th:classappend="${currentSort == 'title' ? 'active' : ''}">
+                                        📚 Titolo (A-Z)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='title', sortDirection='asc')}"
+                                       th:classappend="${currentSort == 'title' ? 'active' : ''}">
+                                        📚 Titolo (A-Z)
+                                    </a>
+                                </li>
+                                
+                                <!-- ANNO -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='year', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'year' ? 'active' : ''}">
+                                        📅 Anno di pubblicazione (↓)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='year', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'year' ? 'active' : ''}">
+                                        📅 Anno di pubblicazione (↓)
+                                    </a>
+                                </li>
+                                
+                                <!-- AUTORE -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='author', sortDirection='asc')}"
+                                       th:classappend="${currentSort == 'author' ? 'active' : ''}">
+                                        ✍️ Cognome autore (A-Z)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='author', sortDirection='asc')}"
+                                       th:classappend="${currentSort == 'author' ? 'active' : ''}">
+                                        ✍️ Cognome autore (A-Z)
+                                    </a>
+                                </li>
+                                
+                                <!-- NUMERO RECENSIONI -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='reviews', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'reviews' ? 'active' : ''}">
+                                        💬 Numero recensioni (↓)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='reviews', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'reviews' ? 'active' : ''}">
+                                        💬 Numero recensioni (↓)
+                                    </a>
+                                </li>
+                                
+                                <!-- MEDIA VOTI -->
+                                <li th:if="${param.search == null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books(sort='rating', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'rating' ? 'active' : ''}">
+                                        ★ Media voti (↓)
+                                    </a>
+                                </li>
+                                <li th:if="${param.search != null}">
+                                    <a class="dropdown-item" 
+                                       th:href="@{/books/search(search=${param.search}, sort='rating', sortDirection='desc')}"
+                                       th:classappend="${currentSort == 'rating' ? 'active' : ''}">
+                                        ★ Media voti (↓)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Pulsante inversione ordine -->
+                        <div th:if="${param.search == null}">
+                            <a th:href="@{/books(sort=${currentSort != null ? currentSort : 'insertion'}, 
+                                                 sortDirection=${currentSort != null ? (currentSortDirection == 'asc' ? 'desc' : 'asc') : 'asc'})}" 
+                               class="btn btn-outline-secondary btn-sm"
+                               th:title="${currentSort != null ? (currentSortDirection == 'asc' ? 'Ordine decrescente' : 'Ordine crescente') : 'Ordine più vecchi primi'}">
+                                <span th:if="${currentSort != null && currentSortDirection == 'asc'}">⬇️</span>
+                                <span th:if="${currentSort != null && currentSortDirection == 'desc'}">⬆️</span>
+                                <span th:if="${currentSort == null}">⬆️</span>
+                            </a>
+                        </div>
+                        <div th:if="${param.search != null}">
+                            <a th:href="@{/books/search(search=${param.search}, 
+                                                        sort=${currentSort != null ? currentSort : 'insertion'}, 
+                                                        sortDirection=${currentSort != null ? (currentSortDirection == 'asc' ? 'desc' : 'asc') : 'asc'})}" 
+                               class="btn btn-outline-secondary btn-sm"
+                               th:title="${currentSort != null ? (currentSortDirection == 'asc' ? 'Ordine decrescente' : 'Ordine crescente') : 'Ordine più vecchi primi'}">
+                                <span th:if="${currentSort != null && currentSortDirection == 'asc'}">⬇️</span>
+                                <span th:if="${currentSort != null && currentSortDirection == 'desc'}">⬆️</span>
+                                <span th:if="${currentSort == null}">⬆️</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contatore totale libri -->
+                <div class="alert alert-light border-0 mb-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2" th:text="${#lists.size(books)}">0</span>
+                        <span>
+                            <span th:if="${#lists.size(books) == 1}">libro disponibile</span>
+                            <span th:if="${#lists.size(books) != 1}">libri disponibili</span>
+                            nel catalogo
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Barra di ricerca unificata -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <form th:action="@{/books/search}" method="get" class="d-flex search-form">
+                            <input type="text" name="search" class="form-control me-2" 
+                                   placeholder="Cerca per titolo, autore o anno..." th:value="${param.search}">
+                            <input type="hidden" name="sort" th:value="${currentSort}">
+                            <input type="hidden" name="sortDirection" th:value="${currentSortDirection}">
+                            <button type="submit" class="btn btn-outline-primary">Cerca</button>
+                            <a th:href="@{/books}" class="btn btn-outline-secondary ms-2">Reset</a>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista libri -->
+                <div class="row justify-content-start">
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4" th:each="book : ${books}">
+                        <div class="card book-card border-0 shadow-sm h-100">
+                            <div class="mt-3 mb-2 d-flex justify-content-center align-items-center" style="height: 220px;">
+                                <img th:if="${book.photoFileName != null}" 
+                                     th:src="@{'/images/' + ${book.photoFileName}}" 
+                                     class="book-cover" alt="Copertina libro">
+                                <div th:if="${book.photoFileName == null}" 
+                                     class="bg-secondary d-flex align-items-center justify-content-center book-cover">
+                                    <span class="text-white fs-2">📚</span>
+                                </div>
+                            </div>
+                            <div class="card-body px-2 py-2 text-center">
+                                <!-- Informazioni libro sempre in alto -->
+                                <h6 class="card-title mb-1" th:text="${book.title}">Titolo</h6>
+                                <p class="card-text mb-1">
+                                    <small class="text-muted">Anno: <span th:text="${book.year}"></span></small>
+                                </p>
+                                <p class="card-text mb-2">
+                                    <small class="text-muted">
+                                        <span th:each="author, iterStat : ${book.authors}">
+                                            <a th:href="@{'/author/' + ${author.id}}" 
+                                               th:text="${author.surname}" class="text-decoration-none"></a>
+                                            <span th:if="${!iterStat.last}">, </span>
+                                        </span>
+                                    </small>
+                                </p>
+                                
+                                <!-- Stelle recensioni sempre visibili -->
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <!-- Stelle per libri CON recensioni -->
+                                        <span class="stars-container" th:if="${book.reviews.size() > 0}">
+                                            <span th:each="star : ${#numbers.sequence(1, 5)}">
+                                                <!-- Stella piena -->
+                                                <span th:if="${star <= book.averageRating}" class="star-filled">★</span>
+                                                <!-- Mezza stella -->
+                                                <span th:if="${star > book.averageRating and (star - 0.5) <= book.averageRating}" class="star-half">★</span>
+                                                <!-- Stella vuota -->
+                                                <span th:if="${star > book.averageRating and (star - 0.5) > book.averageRating}" class="star-empty">★</span>
+                                            </span>
+                                        </span>
+                                        
+                                        <!-- Stelle per libri SENZA recensioni -->
+                                        <span class="stars-container" th:if="${book.reviews.size() == 0}">
+                                            <span th:each="star : ${#numbers.sequence(1, 5)}" class="star-empty">★</span>
+                                        </span>
+                                        
+                                        <!-- Numero recensioni -->
+                                        <small class="text-muted ms-1">(<span th:text="${book.reviews.size()}"></span>)</small>
+                                    </div>
+                                </div>
+                                
+                                <a th:href="@{'/book/' + ${book.id}}" class="btn btn-sm btn-primary">Dettagli</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messaggio se nessun libro trovato -->
+                <div class="alert alert-info" th:if="${#lists.isEmpty(books)}">
+                    <h4>Nessun libro trovato</h4>
+                    <p>Prova con una ricerca diversa o <a th:href="@{/books}">visualizza tutti i libri</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

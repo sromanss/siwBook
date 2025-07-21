@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Panel - SIW Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .dropdown-item.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .dropdown-item.active:hover {
+            background-color: #0a58ca;
+            color: white;
+        }
+        /* link titolo libro senza sottolineatura */
+        .book-title-link {
+            color: #0d6efd;          /* stesso blu dei link Bootstrap */
+            text-decoration: none;   /* niente sottolineatura */
+        }
+        .book-title-link:hover {
+            color: #0a58ca;          /* blu più scuro al passaggio mouse */
+            text-decoration: underline; /* facoltativo: mostra sottolineatura solo su hover */
+        }
+        .author-link {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .author-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        .nationality-link {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nationality-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        /* Link recensioni cliccabile */
+        .reviews-link {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .reviews-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        /* Link anno libro cliccabile */
+        .year-link {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .year-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        /* Link numero libri autore cliccabile */
+        .author-books-link {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .author-books-link:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        .load-more-btn {
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .load-more-btn:hover {
+            color: #495057;
+            text-decoration: underline;
+        }
+        /* Allineamento campi di ricerca */
+        .search-form .form-control {
+            height: 38px;
+        }
+        .search-form .btn {
+            height: 38px;
+        }
+    </style>
+</head>
+<body>
+    <div th:insert="~{fragments/navbar :: nav}"></div>
+    
+    <div class="container mt-4">
+        <!-- Messaggi di errore -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>⚠️ Errore!</strong> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <!-- Messaggi di successo -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✅ Successo!</strong> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <h1>🔧 Pannello Amministratore</h1>
+                <p class="lead">Gestisci libri, autori e contenuti del sistema</p>
+            </div>
+        </div>
+        
+        <!-- Azioni rapide -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📚 Gestione Libri</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Aggiungi, modifica o elimina libri dal catalogo.</p>
+                        <a th:href="@{/admin/books/new}" class="btn btn-success">Nuovo Libro</a>
+                        <a th:href="@{/books}" class="btn btn-outline-primary">Visualizza Catalogo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>✍️ Gestione Autori</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Aggiungi, modifica o elimina autori dal sistema.</p>
+                        <a th:href="@{/admin/authors/new}" class="btn btn-success">Nuovo Autore</a>
+                        <a th:href="@{/authors}" class="btn btn-outline-primary">Visualizza Autori</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiche -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">📖 Libri Totali</h5>
+                        <h2 class="text-primary" th:text="${totalBooks}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">👥 Autori Totali</h5>
+                        <h2 class="text-info" th:text="${totalAuthors}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">💬 Recensioni Totali</h5>
+                        <h2 class="text-warning" th:text="${totalReviews}">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista libri recenti -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>📚 Libri Recenti</h3>
+                    
+                    <!-- Menu di ordinamento libri con pulsante inversione -->
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort"></i> Ordina per
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}"
+                                       th:classappend="${currentSort == null ? 'active' : ''}">
+                                        🆕 Inserimento
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sort='title', sortDirection='asc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}"
+                                       th:classappend="${currentSort == 'title' ? 'active' : ''}">
+                                        📚 Titolo
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sort='year', sortDirection='desc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}"
+                                       th:classappend="${currentSort == 'year' ? 'active' : ''}">
+                                        📅 Anno di pubblicazione
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sort='author', sortDirection='asc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}"
+                                       th:classappend="${currentSort == 'author' ? 'active' : ''}">
+                                        ✍️ Cognome autore
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sort='reviews', sortDirection='desc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}"
+                                       th:classappend="${currentSort == 'reviews' ? 'active' : ''}">
+                                        💬 Numero recensioni
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Pulsante inversione ordine libri -->
+                        <a th:href="@{/admin(sort=${currentSort != null ? currentSort : 'insertion'}, 
+                                             sortDirection=${currentSort != null ? (currentSortDirection == 'asc' ? 'desc' : 'asc') : 'asc'}, 
+                                             sortAuthors=${currentSortAuthors}, 
+                                             sortAuthorsDirection=${currentSortAuthorsDirection},
+                                             booksLimit=${booksLimit}, 
+                                             authorsLimit=${authorsLimit}, 
+                                             searchBooks=${param.searchBooks}, 
+                                             searchAuthors=${param.searchAuthors})}" 
+                           class="btn btn-outline-secondary btn-sm"
+                           th:title="${currentSort != null ? (currentSortDirection == 'asc' ? 'Ordine decrescente' : 'Ordine crescente') : 'Ordine più vecchi primi'}">
+                            <span th:if="${currentSort != null && currentSortDirection == 'asc'}">⬇️</span>
+                            <span th:if="${currentSort != null && currentSortDirection == 'desc'}">⬆️</span>
+                            <span th:if="${currentSort == null}">⬆️</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Barra di ricerca libri -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <form th:action="@{/admin}" method="get" class="d-flex search-form">
+                            <input type="text" name="searchBooks" class="form-control me-2" 
+                                   placeholder="Cerca libri per titolo, autore o anno..." th:value="${param.searchBooks}">
+                            <input type="hidden" name="sort" th:value="${currentSort}">
+                            <input type="hidden" name="sortDirection" th:value="${currentSortDirection}">
+                            <input type="hidden" name="sortAuthors" th:value="${currentSortAuthors}">
+                            <input type="hidden" name="sortAuthorsDirection" th:value="${currentSortAuthorsDirection}">
+                            <input type="hidden" name="booksLimit" th:value="${booksLimit}">
+                            <input type="hidden" name="authorsLimit" th:value="${authorsLimit}">
+                            <input type="hidden" name="searchAuthors" th:value="${param.searchAuthors}">
+                            <button type="submit" class="btn btn-outline-primary">Cerca</button>
+                            <a th:href="@{/admin(searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}" class="btn btn-outline-secondary ms-2">Reset</a>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Titolo</th>
+                                <th>Anno</th>
+                                <th>Autori</th>
+                                <th>Recensioni</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="book, iterStat : ${books}">
+								<td th:text="${iterStat.index + 1}">1</td>
+                                <td>
+                                    <a th:href="@{'/book/' + ${book.id}}"
+                                       th:text="${book.title}"
+                                       class="book-title-link">
+                                    </a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/books/search?search=' + ${book.year}}"
+                                       th:text="${book.year}"
+                                       class="year-link"
+                                       th:title="'Cerca tutti i libri del ' + ${book.year}">2024</a>
+                                </td>
+                                <td>
+                                    <span th:each="author, iterStat : ${book.authors}">
+                                        <a th:href="@{'/author/' + ${author.id}}" 
+                                           th:text="${author.name + ' ' + author.surname}"
+                                           class="author-link"></a>
+                                        <span th:if="${!iterStat.last}">, </span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/book/' + ${book.id}}"
+                                       th:text="${book.reviews.size()}"
+                                       class="reviews-link"
+                                       th:title="'Visualizza le ' + ${book.reviews.size()} + ' recensioni'">0</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/admin/books/' + ${book.id} + '/edit'}" 
+                                       class="btn btn-sm btn-outline-warning">Modifica</a>
+                                    <form th:action="@{'/admin/books/' + ${book.id} + '/delete'}" 
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Eliminare questo libro?')">
+                                            Elimina
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pulsante "Mostra altri libri" -->
+                <div class="text-center mt-3" th:if="${booksLimit < totalBooks}">
+                    <small class="text-muted">
+                        Mostrati <span th:text="${booksLimit}"></span> di <span th:text="${totalBooks}"></span> libri
+                    </small><br>
+                    <a th:href="@{/admin(sort=${currentSort}, sortDirection=${currentSortDirection}, booksLimit=${booksLimit + 10}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection})}" 
+                       class="load-more-btn">
+                        📚 Mostra altri 10 libri
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista autori -->
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>👥 Autori Recenti</h3>
+                    
+                    <!-- Menu di ordinamento autori con pulsante inversione -->
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-2">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    id="sortAuthorsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort"></i> Ordina per
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortAuthorsDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}"
+                                       th:classappend="${currentSortAuthors == null ? 'active' : ''}">
+                                        🆕 Inserimento (dal più recente)
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sortAuthors='surname', sortAuthorsDirection='asc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}"
+                                       th:classappend="${currentSortAuthors == 'surname' ? 'active' : ''}">
+                                        👤 Cognome
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sortAuthors='name', sortAuthorsDirection='asc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}"
+                                       th:classappend="${currentSortAuthors == 'name' ? 'active' : ''}">
+                                        ✍️ Nome 
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sortAuthors='nationality', sortAuthorsDirection='asc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}"
+                                       th:classappend="${currentSortAuthors == 'nationality' ? 'active' : ''}">
+                                        🌍 Nazionalità 
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                       th:href="@{/admin(sortAuthors='books', sortAuthorsDirection='desc', booksLimit=${booksLimit}, authorsLimit=${authorsLimit}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}"
+                                       th:classappend="${currentSortAuthors == 'books' ? 'active' : ''}">
+                                        📚 Numero libri
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Pulsante inversione ordine autori -->
+                        <a th:href="@{/admin(sort=${currentSort}, 
+                                             sortDirection=${currentSortDirection}, 
+                                             sortAuthors=${currentSortAuthors != null ? currentSortAuthors : 'insertion'}, 
+                                             sortAuthorsDirection=${currentSortAuthors != null ? (currentSortAuthorsDirection == 'asc' ? 'desc' : 'asc') : 'asc'},
+                                             booksLimit=${booksLimit}, 
+                                             authorsLimit=${authorsLimit}, 
+                                             searchBooks=${param.searchBooks}, 
+                                             searchAuthors=${param.searchAuthors})}" 
+                           class="btn btn-outline-secondary btn-sm"
+                           th:title="${currentSortAuthors != null ? (currentSortAuthorsDirection == 'asc' ? 'Ordine decrescente' : 'Ordine crescente') : 'Ordine più vecchi primi'}">
+                            <span th:if="${currentSortAuthors != null && currentSortAuthorsDirection == 'asc'}">⬇️</span>
+                            <span th:if="${currentSortAuthors != null && currentSortAuthorsDirection == 'desc'}">⬆️</span>
+                            <span th:if="${currentSortAuthors == null}">⬆️</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Barra di ricerca autori -->
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <form th:action="@{/admin}" method="get" class="d-flex search-form">
+                            <input type="text" name="searchAuthors" class="form-control me-2" 
+                                   placeholder="Cerca autori per nome, cognome o nazionalità..." th:value="${param.searchAuthors}">
+                            <input type="hidden" name="sort" th:value="${currentSort}">
+                            <input type="hidden" name="sortDirection" th:value="${currentSortDirection}">
+                            <input type="hidden" name="sortAuthors" th:value="${currentSortAuthors}">
+                            <input type="hidden" name="sortAuthorsDirection" th:value="${currentSortAuthorsDirection}">
+                            <input type="hidden" name="booksLimit" th:value="${booksLimit}">
+                            <input type="hidden" name="authorsLimit" th:value="${authorsLimit}">
+                            <input type="hidden" name="searchBooks" th:value="${param.searchBooks}">
+                            <button type="submit" class="btn btn-outline-primary">Cerca</button>
+                            <a th:href="@{/admin(searchBooks=${param.searchBooks}, sort=${currentSort}, sortDirection=${currentSortDirection})}" class="btn btn-outline-secondary ms-2">Reset</a>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Nome</th>
+                                <th>Cognome</th>
+                                <th>Nazionalità</th>
+                                <th>Libri</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="author, iterStat : ${authors}">
+								<td th:text="${iterStat.index + 1}">1</td>
+                                <td>
+                                    <a th:href="@{'/author/' + ${author.id}}" 
+                                       th:text="${author.name}"
+                                       class="author-link">Nome</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/author/' + ${author.id}}" 
+                                       th:text="${author.surname}"
+                                       class="author-link">Cognome</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/authors/search?search=' + ${author.nationality} + '&sort='}" 
+                                       th:text="${author.nationality}"
+                                       class="nationality-link">Nazionalità</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/author/' + ${author.id}}"
+                                       th:text="${author.books.size()}"
+                                       class="author-books-link"
+                                       th:title="'Visualizza i ' + ${author.books.size()} + ' libri di questo autore'">0</a>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/admin/authors/' + ${author.id} + '/edit'}" 
+                                       class="btn btn-sm btn-outline-warning">Modifica</a>
+                                    <form th:action="@{'/admin/authors/' + ${author.id} + '/delete'}" 
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Eliminare questo autore?')">
+                                            Elimina
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pulsante "Mostra altri autori" -->
+                <div class="text-center mt-3" th:if="${authorsLimit < totalAuthors}">
+                    <small class="text-muted">
+                        Mostrati <span th:text="${authorsLimit}"></span> di <span th:text="${totalAuthors}"></span> autori
+                    </small><br>
+                    <a th:href="@{/admin(sortAuthors=${currentSortAuthors}, sortAuthorsDirection=${currentSortAuthorsDirection}, booksLimit=${booksLimit}, authorsLimit=${authorsLimit + 10}, searchBooks=${param.searchBooks}, searchAuthors=${param.searchAuthors}, sort=${currentSort}, sortDirection=${currentSortDirection})}" 
+                       class="load-more-btn">
+                        👥 Mostra altri 10 autori
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

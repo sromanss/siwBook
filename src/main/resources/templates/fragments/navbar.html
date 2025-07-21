@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <nav th:fragment="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">📚 SIW Library</a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/books}">Libri</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/authors}">Autori</a>
+                    </li>
+                    <!-- Menu Admin -->
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin}">🔧 Admin</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- Utente non autenticato -->
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" th:href="@{/register}">Registrati</a>
+                    </li>
+                    
+                    <!-- Utente autenticato -->
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <!-- ADMIN: Mostra "Admin" -->
+                            <span sec:authorize="hasRole('ADMIN')">🔧 Admin</span>
+                            
+                            <!-- NON ADMIN: Mostra il nome utente -->
+                            <span sec:authorize="!hasRole('ADMIN')">
+                                <!-- Utenti OAuth2 Google (con email) -->
+                                <span sec:authorize="hasAuthority('OIDC_USER')" 
+                                      th:if="${#authentication.principal.attributes['email'] != null}"
+                                      th:text="${#strings.substringBefore(#authentication.principal.attributes['email'], '@')}"></span>
+                                
+                                <!-- Utenti OAuth2 GitHub (con email se disponibile) -->
+                                <span sec:authorize="hasAuthority('OAUTH2_USER')" 
+                                      th:if="${#authentication.principal.attributes['email'] != null}"
+                                      th:text="${#strings.substringBefore(#authentication.principal.attributes['email'], '@')}"></span>
+                                
+                                <!-- Utenti OAuth2 GitHub (senza email - usa login) -->
+                                <span sec:authorize="hasAuthority('OAUTH2_USER')" 
+                                      th:if="${#authentication.principal.attributes['email'] == null}"
+                                      th:text="${#authentication.principal.attributes['login']}"></span>
+                                
+                                <!-- ✅ CORREZIONE: Utenti normali - usa ROLE_USER invece di USER -->
+                                <span sec:authorize="hasAuthority('ROLE_USER') and !hasAuthority('OIDC_USER') and !hasAuthority('OAUTH2_USER')" 
+                                      sec:authentication="name"></span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer; width: 100%; text-align: left;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>
