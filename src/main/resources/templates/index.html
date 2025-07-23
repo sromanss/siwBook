@@ -73,22 +73,23 @@
     </style>
 </head>
 <body>
-    <div th:insert="~{fragments/navbar :: nav}"></div>
+    <div th:insert="~{fragments/navbar :: nav}"></div>	<!-- inserimento navbar -->
     
     <div class="container mt-4">
-        <!-- Hero Section Minimalista -->
+        <!--	sezione centrale  -->
         <div class="hero-compact text-center py-3 mb-4">
             <h1 class="hero-title-compact mb-2">📚 SIW Library</h1>
         </div>
         
-        <!-- Ultimi Libri -->
+        <!-- Ultimi 6 Libri -->
         <div class="row mb-5">
             <div class="col-md-12">
                 <h2>📚 Ultimi Libri Aggiunti</h2>
                 <div class="row justify-content-start">
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4" th:each="book : ${books}">
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4" th:each="book : ${books}">	<!-- regola larghezza in base al dispositivo-->
                         <div class="card book-card border-0 shadow-sm h-100">
                             <div class="mt-3 mb-2 d-flex justify-content-center align-items-center" style="height: 220px;">
+								<!-- immagine libro -->
                                 <img th:if="${book.photoFileName != null}" 
                                      th:src="@{'/images/' + ${book.photoFileName}}" 
                                      class="book-cover" alt="Copertina libro">
@@ -97,6 +98,7 @@
                                     <span class="text-white fs-2">📖</span>
                                 </div>
                             </div>
+							<!-- info libro -->
                             <div class="card-body px-2 py-2 text-center">
                                 <h6 class="card-title mb-1" th:text="${book.title}">Titolo</h6>
                                 <p class="card-text mb-2">
@@ -108,7 +110,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-3">
-                    <a th:href="@{/books}" class="btn btn-outline-primary">Vedi tutti i libri</a>
+                    <a th:href="@{/books}" class="btn btn-outline-primary">Vedi tutti i libri</a>	<!-- tasto per redirect a books -->
                 </div>
             </div>
         </div>
@@ -130,7 +132,7 @@
                                     <span class="text-white fs-3">👤</span>
                                 </div>
                             </div>
-                            
+                            <!-- info autore -->
                             <div class="card-body px-2 py-2 text-center">
                                 <h6 class="card-title mb-1" th:text="${author.name + ' ' + author.surname}">Nome Autore</h6>
                                 <p class="card-text mb-2">
@@ -144,6 +146,7 @@
                         </div>
                     </div>
                 </div>
+				<!-- tasto per redirect a authors -->
                 <div class="text-center mt-3">
                     <a th:href="@{/authors}" class="btn btn-outline-primary">Vedi tutti gli autori</a>
                 </div>

@@ -24,9 +24,9 @@
     </style>
 </head>
 <body>
-    <div th:insert="~{fragments/navbar :: nav}"></div>
+    <div th:insert="~{fragments/navbar :: nav}"></div>	<!-- inserisci navbar -->
     
-    <div class="container mt-4">
+    <div class="container mt-4">	<!-- breadrucmb del percorso url -->
         <div class="row">
             <div class="col-md-12">
                 <nav aria-label="breadcrumb">
@@ -40,26 +40,26 @@
         </div>
         
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-8">	<!-- larghezza 8/12 -->
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header">	<!-- header della card -->
                         <h3>📝 Modifica Libro: <span th:text="${book.title}"></span></h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body">		<!-- body della card -->
                         <form th:action="@{'/admin/books/' + ${book.id}}" method="post" th:object="${book}" enctype="multipart/form-data">
                             
                             <!-- Titolo -->
                             <div class="mb-3">
                                 <label for="title" class="form-label">Titolo *</label>
-                                <input type="text" class="form-control" id="title" th:field="*{title}" required>
-                                <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                <input type="text" class="form-control" id="title" th:field="*{title}" required>	<!-- popolamento automatico dell'etichetta -->
+                                <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>	<!-- se ci sono errori, diventa rossa -->
                             </div>
                             
                             <!-- Anno -->
                             <div class="mb-3">
                                 <label for="year" class="form-label">Anno di Pubblicazione *</label>
                                 <input type="number" class="form-control" id="year" th:field="*{year}" 
-                                       min="1000" max="2025" required>
+                                       min="0" max="2025" required>
                                 <div class="text-danger" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></div>
                             </div>
                             
@@ -67,12 +67,12 @@
                             <div class="mb-3">
                                 <label class="form-label">Autori *</label>
                                 <div class="row">
-                                    <div class="col-md-6" th:each="author : ${authors}">
+                                    <div class="col-md-6" th:each="author : ${authors}">	<!--- ogni checkbos occupa metà larghezza -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" 
                                                    th:id="'author_' + ${author.id}" 
                                                    name="authorIds" th:value="${author.id}"
-                                                   th:checked="${book.authors.contains(author)}">
+                                                   th:checked="${book.authors.contains(author)}">	<!-- imposta in automatico come checkati gli autori attuali -->
                                             <label class="form-check-label" th:for="'author_' + ${author.id}">
                                                 <span th:text="${author.name + ' ' + author.surname}"></span>
                                                 <small class="text-muted" th:text="'(' + ${author.nationality} + ')'"></small>
@@ -82,7 +82,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Immagini attuali con eliminazione -->
+                            <!-- Immagini attuali con eliminazione, mostrate solo se ci sono -->
                             <div class="mb-3" th:if="${book.images.size() > 0}">
                                 <label class="form-label">Immagini attuali</label>
                                 <div class="alert alert-warning">
@@ -131,8 +131,8 @@
                             
                             <!-- Pulsanti -->
                             <div class="d-flex justify-content-between">
-                                <a th:href="@{'/book/' + ${book.id}}" class="btn btn-secondary">Annulla</a>
-                                <button type="submit" class="btn btn-warning">💾 Salva Modifiche</button>
+                                <a th:href="@{'/book/' + ${book.id}}" class="btn btn-secondary">Annulla</a>	<!-- pulsante annulla di colore grigio -->
+                                <button type="submit" class="btn btn-warning">💾 Salva Modifiche</button>	<!-- pulsnante modifica di colore giallo -->
                             </div>
                         </form>
                     </div>

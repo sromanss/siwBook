@@ -25,14 +25,11 @@ public class BookController {
     private BookService bookService;
 
     @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
     private ImageService imageService;
 
     @GetMapping("/books")
-    public String books(@RequestParam(name = "sort", required = false) String sort,
-                       @RequestParam(name = "sortDirection", required = false) String sortDirection,
+    public String books(@RequestParam(name = "sort", required = false) String sort,	//parametro opzionale per tipo ordinamento
+                       @RequestParam(name = "sortDirection", required = false) String sortDirection,	//parametro opzionale per direzione ordinamento
                        Model model) {
         
         // Recupera tutti i libri
@@ -59,13 +56,12 @@ public class BookController {
                     bookList.sort(Comparator.comparing(book -> 
                         book.getAuthors().stream()
                             .map(author -> author.getSurname() + " " + author.getName())
-                            .findFirst().orElse("")
+                            .findFirst().orElse("")	//prende il primo autore o stringa vuota
                     ));
                     break;
                 case "reviews":
                     bookList.sort(Comparator.comparingInt(book -> book.getReviews().size()));
                     break;
-                case "rating":
                 case "averageRating":
                     bookList.sort(Comparator.comparingDouble(Book::getAverageRating));
                     break;
@@ -79,7 +75,7 @@ public class BookController {
             // Ordinamento predefinito per ID decrescente (più recenti primi)
             bookList.sort(Comparator.comparing(Book::getId).reversed());
         }
-        
+        //Aggiunge risultati ricerca al model e restituisce stesso template 
         model.addAttribute("books", bookList);
         model.addAttribute("currentSort", sort);
         model.addAttribute("currentSortDirection", sortDirection);
@@ -87,12 +83,12 @@ public class BookController {
     }
 
     @GetMapping("/book/{id}")
-    public String book(@PathVariable("id") Long id,
+    public String book(@PathVariable("id") Long id,	//id estratto automaticamente dall'URL
                       @RequestParam(name = "reviewSort", required = false) String reviewSort,
                       @RequestParam(name = "reviewSortDirection", required = false) String reviewSortDirection,
                       Model model) {
         Optional<Book> optionalBook = bookService.findById(id);
-        if (optionalBook.isPresent()) {
+        if (optionalBook.isPresent()) {	//se il libro è stato trovato, ottiene l'oggetto libro
             Book book = optionalBook.get();
             
             // Recupera le recensioni
@@ -170,8 +166,8 @@ public class BookController {
                 case "reviews":
                     searchResults.sort(Comparator.comparingInt(book -> book.getReviews().size()));
                     break;
-                case "rating":
                 case "averageRating":
+                	//per ogni oggetto book chiama metodo getAverageRating()
                     searchResults.sort(Comparator.comparingDouble(Book::getAverageRating));
                     break;
             }

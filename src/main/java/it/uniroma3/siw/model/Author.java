@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.*;
 
-@Entity
+@Entity	//Dice a JPA che questa classe rappresenta una tabella nel DB
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,7 @@ public class Author {
     
     @Past
     private LocalDate birthDate;
+    
     
     private LocalDate deathDate;
     

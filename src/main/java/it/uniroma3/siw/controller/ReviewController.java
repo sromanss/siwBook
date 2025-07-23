@@ -63,7 +63,7 @@ public class ReviewController {
         if (opt.isEmpty()) {
             return "redirect:/books?error=book_not_found";
         }
-
+        //Ottieni info autenticazione corrente
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Credentials credentials = getCurrentUserCredentials(auth);
         
@@ -71,7 +71,7 @@ public class ReviewController {
             return "redirect:/login?error=credentials_not_found";
         }
 
-        /* 1 sola recensione per libro-utente */
+        //Controlla se l'utente può fare recensione o se ne ha già una
         if (!reviewService.canUserReviewBook(opt.get(), credentials)) {
             return "redirect:/book/" + bookId + "?error=already_reviewed";
         }

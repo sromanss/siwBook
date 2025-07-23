@@ -41,26 +41,20 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
-    // Metodo semplificato che crea solo l'utente
     @Transactional
     public User findOrCreateOAuthUser(String email, String name) {
-        System.out.println("DEBUG: Cercando utente OAuth con email: " + email);
         
         // Controlla se esiste già un utente con questa email
         Optional<User> existingUser = findByEmail(email);
         
         if (existingUser.isPresent()) {
-            System.out.println("DEBUG: Utente OAuth trovato: " + existingUser.get().getName());
+           
             return existingUser.get();
         }
-        
-        System.out.println("DEBUG: Creando nuovo utente OAuth");
         
         // Crea solo il nuovo utente OAuth (le credenziali verranno create altrove)
         User newUser = new User(name, email, "oauth2");
         User savedUser = save(newUser);
-        
-        System.out.println("DEBUG: Utente salvato con ID: " + savedUser.getId());
         
         return savedUser;
     }

@@ -7,29 +7,29 @@
     <title th:text="${author.name + ' ' + author.surname} + ' - SIW Library'">Autore - SIW Library</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* —— Libri dell'autore ——————————————— */
+        /* stile css per la copertina del libro */
         .book-cover {
             width: 150px;  height: 220px;
             object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            background:#f8f9fa;
+            border-radius: 8px;	/* angoli arrotondati */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);	/* ombra */
+            background:#f8f9fa;	/* colore se immagine non disponibile */
         }
         .book-card {display:flex;flex-direction:column;align-items:center;height:100%;}
         .book-card .card-body {width:100%;flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;}
 
-        /* ✅ SISTEMA STELLE CORRETTO - UNIFORMATO CON BOOK.HTML */
+        /* stile css per le stelle delle recensioni */
         .stars-container {
             position: relative;
             display: inline-block;
             font-size: 1.1em;
         }
-        
+        /* stella piena */
         .star-filled {
             color: #ffc107 !important;
             text-shadow: 0 0 2px rgba(255, 193, 7, 0.5);
         }
-        
+        /* stella metà */
         .star-half {
             position: relative;
             display: inline-block;
@@ -46,7 +46,7 @@
             color: #ffc107;
             text-shadow: 0 0 2px rgba(255, 193, 7, 0.5);
         }
-        
+        /* stelle vuote */
         .star-empty {
             color: #e9ecef !important;
             opacity: 0.3;
@@ -55,13 +55,14 @@
         /* box info autore */
         .author-info{background:#f8f9fa;border-radius:8px;padding:1.5rem;position:sticky;top:20px;}
 
-        /* —— Link nazionalità (stile adminHome) ——— */
+        /* link nazionalità */
         .nationality-link{
             color:#0d6efd;
             text-decoration:none;
             cursor:pointer;
             transition:color .2s ease;
         }
+		/* passaggio con cursore */
         .nationality-link:hover{
             color:#0a58ca;
             text-decoration:underline;
@@ -69,7 +70,7 @@
     </style>
 </head>
 <body>
-    <div th:insert="~{fragments/navbar :: nav}"></div>
+    <div th:insert="~{fragments/navbar :: nav}"></div>	<!-- inserimento navbar -->
 
     <div class="container mt-4">
         <!-- breadcrumb -->
@@ -86,43 +87,43 @@
         <div class="row">
             <!-- colonna sinistra -->
             <div class="col-md-3">
-                <div class="author-info">
-                    <!-- foto -->
+                <div class="author-info">	<!-- classe css personalizzata -->
+                    <!-- container per foto -->
                     <div class="text-center mb-4">
                         <img th:if="${author.photoFileName != null}"
                              th:src="@{'/images/' + ${author.photoFileName}}"
-                             class="rounded-circle img-fluid"
-                             style="width:180px;height:180px;object-fit:cover;">
+                             class="rounded-circle img-fluid"	
+                             style="width:180px;height:180px;object-fit:cover;">	<!-- se l'autore ha una foto, mostrala in un cerchio, mantenendo proporzioni-->
                         <div th:if="${author.photoFileName == null}"
                              class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
                              style="width:180px;height:180px;">
-                            <span class="text-white display-2">👤</span>
+                            <span class="text-white display-2">👤</span>	<!-- se la foto non c'è mostra uno sfondo grigio-->
                         </div>
                     </div>
 
-                    <!-- nome -->
+                    <!-- nome autore, centrato -->
                     <h2 class="text-center mb-4" th:text="${author.name + ' ' + author.surname}">Nome Autore</h2>
 
-                    <!-- info biografiche -->
+                    <!-- container per info biografiche -->
                     <div class="mb-3">
-                        <!-- nazionalità con nuovo stile -->
+                        <!-- nazionalità con redirect -->
                         <p class="mb-2" th:if="${author.nationality != null}">
                             <strong>Nazione di nascita:</strong><br>
                             <a th:href="@{'/authors/search?search=' + ${author.nationality}}"
                                th:text="${author.nationality}"
                                class="nationality-link"></a>
                         </p>
-
+						<!-- data di nascita -->
                         <p class="mb-2" th:if="${author.birthDate != null}">
                             <strong>Data di nascita:</strong><br>
                             <span th:text="${#temporals.format(author.birthDate,'dd MMMM yyyy')}" class="text-muted"></span>
                         </p>
-
+						<!-- data di morte se presente -->
                         <p class="mb-2" th:if="${author.deathDate != null}">
                             <strong>Data di morte:</strong><br>
                             <span th:text="${#temporals.format(author.deathDate,'dd MMMM yyyy')}" class="text-muted"></span>
                         </p>
-
+						<!-- numero di libri -->
                         <p class="mb-3" th:if="${author.books.size() > 0}">
                             <strong>Numero di libri:</strong><br>
                             <span th:text="${author.books.size()}" class="text-muted"></span>
@@ -144,14 +145,14 @@
             </div>
 
             <!-- colonna destra: libri dell'autore -->
-            <div class="col-md-9">
+            <div class="col-md-9">	<!-- colonna che occupa 9/12-->
                 <div class="mb-4">
                     <h2>📚 Libri di <span th:text="${author.name + ' ' + author.surname}"></span></h2>
 
-                    <!-- contatore -->
+                    <!-- contatore, mostrato solo se l'autore ne ha' -->
                     <div class="alert alert-light border-0 mb-3" th:if="${author.books.size() > 0}">
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-primary me-2" th:text="${author.books.size()}">0</span>
+                            <span class="badge bg-primary me-2" th:text="${author.books.size()}">0</span>	<!-- badge blu per numero libri-->
                             <span>
                                 <span th:if="${author.books.size() == 1}">libro disponibile</span>
                                 <span th:if="${author.books.size() != 1}">libri disponibili</span>
@@ -167,26 +168,26 @@
                 </div>
 
                 <!-- lista libri -->
-                <div class="row justify-content-start" th:if="${!#lists.isEmpty(author.books)}">
+                <div class="row justify-content-start" th:if="${!#lists.isEmpty(author.books)}">	<!-- allineamento a sx -->
                     <div class="col-6 col-sm-4 col-md-4 col-lg-3 mb-4"
-                         th:each="book : ${author.books}">
-                        <div class="card book-card border-0 shadow-sm h-100">
+                         th:each="book : ${author.books}">	<!-- gestisce quanti libri mostrare per riga in base alle dimensioni dello schermo -->
+                        <div class="card book-card border-0 shadow-sm h-100">	<!-- classe css personalizzata -->
                             <div class="mt-3 mb-2 d-flex justify-content-center align-items-center" style="height:220px;">
                                 <img th:if="${book.photoFileName != null}"
                                      th:src="@{'/images/' + ${book.photoFileName}}"
-                                     class="book-cover" alt="Copertina libro">
+                                     class="book-cover" alt="Copertina libro">	<!-- immagine libro -->
                                 <div th:if="${book.photoFileName == null}"
                                      class="bg-secondary d-flex align-items-center justify-content-center book-cover">
-                                    <span class="text-white fs-2">📚</span>
+                                    <span class="text-white fs-2"> 📚 </span>	<!-- altrimenti mostra emoj libro su backgroun grigio-->
                                 </div>
-                            </div>
+                            </div>	<!-- info del libro -->
                             <div class="card-body px-2 py-2 text-center">
                                 <h6 class="card-title mb-1" th:text="${book.title}">Titolo</h6>
                                 <p class="card-text mb-2">
                                     <small class="text-muted">Anno: <span th:text="${book.year}"></span></small>
                                 </p>
 
-                                <!-- ✅ STELLE RECENSIONI UNIFORMATE CON BOOK.HTML -->
+                                <!-- voto medio recensioni -->
                                 <div class="mb-2">
                                     <div class="d-flex justify-content-center align-items-center">
                                         <!-- Stelle per libri CON recensioni -->
@@ -210,7 +211,7 @@
                                         <small class="text-muted ms-1">(<span th:text="${book.reviews.size()}"></span>)</small>
                                     </div>
                                 </div>
-
+								<!-- tasto dettagli libro -->
                                 <a th:href="@{'/book/' + ${book.id}}" class="btn btn-sm btn-primary">Dettagli</a>
                             </div>
                         </div>

@@ -12,11 +12,12 @@ import java.util.Optional;
 
 @Service
 public class AuthorService {
-
+	
+	// Repository per accedere ai dati degli autori nel database
     @Autowired
     private AuthorRepository authorRepository;
 
-    @Transactional
+    @Transactional // per gestire la transazione database automaticamente
     public Author save(Author author) {
         return this.authorRepository.save(author);
     }

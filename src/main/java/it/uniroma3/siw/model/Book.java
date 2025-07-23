@@ -21,13 +21,13 @@ public class Book {
     
     private String photoFileName;
     
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "book_author",
-               joinColumns = @JoinColumn(name = "book_id"),
-               inverseJoinColumns = @JoinColumn(name = "author_id"))
-    private Set<Author> authors = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)	//relazione molti a molti con caricamento immediato
+    @JoinTable(name = "book_author",	//nome della tabella di join
+               joinColumns = @JoinColumn(name = "book_id"),	//colonna che punta a questo libro
+               inverseJoinColumns = @JoinColumn(name = "author_id"))	//colonna che punta all'autore
+    private Set<Author> authors = new HashSet<>();	//set degli autori di questo libro
     
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)	//uno a molti con gestione cascade completa (se un'immagine viene rimossa, viene eliminata dal db)
     private List<Image> images = new ArrayList<>();
     
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -66,7 +66,7 @@ public class Book {
     public double getAverageRating() {
         if (reviews.isEmpty()) {
             return 0.0;
-        }
+        } //somma tutti i rating delle recensioni e dividi per la size
         double sum = reviews.stream().mapToInt(Review::getRating).sum();
         return sum / reviews.size();
     }

@@ -29,7 +29,7 @@ public class ImageService {
     private BookRepository bookRepository;
 
     @Value("${app.upload.dir}")
-    private String uploadDir;
+    private String uploadDir;	//directory dove salvare fisicamente i file immagine
 
     @Transactional
     public String saveImage(MultipartFile file) throws IOException {
@@ -55,16 +55,16 @@ public class ImageService {
     @Transactional
     public Image saveImage(Long bookId, MultipartFile file) throws IOException {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
-        if (optionalBook.isEmpty()) {
+        if (optionalBook.isEmpty()) { //controlla se il libro esiste
             throw new IllegalArgumentException("Book not found");
         }
-        System.out.println("PERCORSO UPLOAD ATTUALE: " + uploadDir);
+        // se esiste chiama il metodo precedente per salvare il file su disco
         Book book = optionalBook.get();
         String fileName = saveImage(file);
 
         // Salva metadati nel database
         Image image = new Image(fileName, file.getContentType(), book);
-        return this.imageRepository.save(image);
+        return this.imageRepository.save(image);	//salva nel database
     }
 
     public boolean isValidImageFile(MultipartFile file) {
@@ -79,6 +79,7 @@ public class ImageService {
 
     public void deleteImage(String fileName) {
         try {
+        	//costruisce percroso completo del file e lo elimina se esiste, altrimenti errore
             Path filePath = Paths.get(uploadDir).resolve(fileName);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
@@ -97,6 +98,7 @@ public class ImageService {
 
     @Transactional
     public void deleteById(Long id) {
+    	//cerca l'immagine. Se esiste prima elimina il file fisico poi i dati dal database
         Optional<Image> optionalImage = this.imageRepository.findById(id);
         if (optionalImage.isPresent()) {
             Image image = optionalImage.get();

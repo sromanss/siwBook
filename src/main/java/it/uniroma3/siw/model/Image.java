@@ -12,7 +12,7 @@ public class Image {
     
     @NotBlank
     private String fileName;
-    
+    //tipo del file immagine
     private String contentType;
     
     @ManyToOne

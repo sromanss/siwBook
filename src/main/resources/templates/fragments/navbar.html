@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <nav th:fragment="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" th:href="@{/}">📚 SIW Library</a>
+    <nav th:fragment="nav" class="navbar navbar-expand-lg navbar-dark bg-dark">	<!-- navbar scursa -->
+        <div class="container">	<!-- contenitore -->
+            <a class="navbar-brand" th:href="@{/}">📚 SIW Library</a>	<!-- scritta che reindirizza alla home -->
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -15,23 +15,22 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                    <li class="nav-item">	<!-- tasto per home -->
                         <a class="nav-link" th:href="@{/}">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item">	<!-- tasto per libri -->
                         <a class="nav-link" th:href="@{/books}">Libri</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item">	<!-- tasto per autori -->
                         <a class="nav-link" th:href="@{/authors}">Autori</a>
-                    </li>
-                    <!-- Menu Admin -->
+                    </li>					<!-- tasto per pannello admin-->
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" th:href="@{/admin}">🔧 Admin</a>
                     </li>
                 </ul>
                 
-                <ul class="navbar-nav">
-                    <!-- Utente non autenticato -->
+                <ul class="navbar-nav">	<!-- posizionamento automatico a destra -->
+                    <!-- Utente non autenticato, mostra tasti di login e registrazione -->
                     <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="nav-link" th:href="@{/login}">Login</a>
                     </li>
@@ -62,12 +61,12 @@
                                       th:if="${#authentication.principal.attributes['email'] == null}"
                                       th:text="${#authentication.principal.attributes['login']}"></span>
                                 
-                                <!-- ✅ CORREZIONE: Utenti normali - usa ROLE_USER invece di USER -->
+                                <!-- Utenti normali -->
                                 <span sec:authorize="hasAuthority('ROLE_USER') and !hasAuthority('OIDC_USER') and !hasAuthority('OAUTH2_USER')" 
                                       sec:authentication="name"></span>
                             </span>
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu">	<!-- tasto di logout, mostrato solo se l'utente è autenticato e cliccando sul nome-->
                             <li>
                                 <form th:action="@{/logout}" method="post" class="d-inline">
                                     <button type="submit" class="dropdown-item" style="border: none; background: none; cursor: pointer; width: 100%; text-align: left;">

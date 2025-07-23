@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div th:insert="~{fragments/navbar :: nav}"></div>
+    <div th:insert="~{fragments/navbar :: nav}"></div>	<!-- inserimento navbar -->
     
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -81,7 +81,7 @@
                                 <button type="submit" class="btn btn-success">Registrati</button>
                             </div>
                         </form>
-                        
+                        <!-- redirect al login -->
                         <div class="text-center mt-3">
                             <p>Hai già un account? <a th:href="@{/login}">Accedi qui</a></p>
                         </div>

@@ -22,31 +22,30 @@ import jakarta.validation.Valid;
 public class AuthenticationController {
     
     @Autowired
-    private UserService userService;
+    private UserService userService;	//Service per gestire operazione su utenti
     
     @Autowired
-    private CredentialsService credentialsService;
-    
+    private CredentialsService credentialsService;	//Service per gestire operazioni su credenziali
+    //Risponde alla richiesta GET verso /register
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
-        System.out.println("DEBUG: Accesso alla pagina di registrazione");
-        model.addAttribute("user", new User());
-        model.addAttribute("credentials", new Credentials());
-        return "register";
+        model.addAttribute("user", new User());	//Aggiunge oggetto User vuoto per il form
+        model.addAttribute("credentials", new Credentials());	//Aggiunge oggetto credentials vuoto per il form
+        return "register";	//Restituisce il template register.html
     }
-    
+    //Risponde alla richiesta POST verso /register
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user,
-                              @Valid @ModelAttribute("credentials") Credentials credentials,
+    public String registerUser(@Valid @ModelAttribute("user") User user,	//user dal form, validato automaticamente
+                              @Valid @ModelAttribute("credentials") Credentials credentials,	//credentials dal form, validate automaticamente
                               BindingResult bindingResult,
                               @RequestParam("confirmPassword") String confirmPassword,
                               Model model) {
 
-        System.out.println("=== DEBUG REGISTRAZIONE ===");
+        /* System.out.println("=== DEBUG REGISTRAZIONE ===");
         System.out.println("Username: " + credentials.getUsername());
         System.out.println("Nome: " + user.getName());
-        System.out.println("Email: " + user.getEmail());
-
+        System.out.println("Email: " + user.getEmail()); */
+    	
         if (bindingResult.hasErrors()) {
             System.out.println("DEBUG: Errori di validazione trovati");
             model.addAttribute("errorMessage", "Errori di validazione nei campi del form.");
@@ -72,6 +71,7 @@ public class AuthenticationController {
         }
 
         try {
+        	// Salva l'utente nel database
             user = userService.save(user);
             credentials.setUser(user);
             credentialsService.save(credentials);
@@ -95,9 +95,6 @@ public class AuthenticationController {
             return "redirect:/login";
         }
 
-        System.out.println("DEBUG Success: Authentication type=" + authentication.getClass().getSimpleName());
-        System.out.println("DEBUG Success: Authorities=" + authentication.getAuthorities());
-
         // Gestione utenti OAuth
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
@@ -106,9 +103,9 @@ public class AuthenticationController {
             String email = oauthToken.getPrincipal().getAttribute("email");
             String name = oauthToken.getPrincipal().getAttribute("name");
             
-            System.out.println("DEBUG OAuth: Provider=" + registrationId);
+            /* System.out.println("DEBUG OAuth: Provider=" + registrationId);
             System.out.println("DEBUG OAuth: Email=" + email);
-            System.out.println("DEBUG OAuth: Name=" + name);
+            System.out.println("DEBUG OAuth: Name=" + name); */
             
             // Gestione specifica per GitHub
             if ("github".equals(registrationId)) {
@@ -139,7 +136,7 @@ public class AuthenticationController {
                 // Crea o trova l'utente OAuth
                 User user = userService.findOrCreateOAuthUser(email, name);
                 
-                // ✅ RIPRISTINO: Crea sempre credenziali con ruolo USER per compatibilità
+                // Crea sempre credenziali con ruolo USER per compatibilità
                 Credentials existingCredentials = credentialsService.findByUsername(email);
                 if (existingCredentials == null) {
                     Credentials credentials = new Credentials(email, null, "USER");
@@ -165,6 +162,6 @@ public class AuthenticationController {
             .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
         
         System.out.println("DEBUG: Login tradizionale - isAdmin=" + isAdmin);
-        return isAdmin ? "redirect:/admin" : "redirect:/";
+        return isAdmin ? "redirect:/admin" : "redirect:/";	
     }
 }

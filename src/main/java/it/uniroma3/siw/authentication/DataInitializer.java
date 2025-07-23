@@ -9,13 +9,14 @@ import it.uniroma3.siw.model.Credentials;
 import it.uniroma3.siw.model.User;
 import it.uniroma3.siw.service.CredentialsService;
 
-@Component
+@Component // Dice a spring di registrare questa classe come Bean
 public class DataInitializer implements ApplicationRunner {
 
-    @Autowired
+    @Autowired // Spring inietterà automaticamente un'istanza di CredentialsService
     private CredentialsService credentialsService;
 
     @Override
+    // Metodo eseguito automaticamente da Spring all'avvio dell'applicazione
     public void run(ApplicationArguments args) throws Exception {
         // Verifica se l'admin esiste già
         if (credentialsService.getCredentials("admin") == null) {
@@ -30,12 +31,13 @@ public class DataInitializer implements ApplicationRunner {
             adminCredentials.setPassword("admin"); 
             adminCredentials.setRole(Credentials.ADMIN_ROLE);
 
-            // Associa l'utente alle credenziali
+            // Associa l'utente alle credenziali (relazione OneToOne)
             adminCredentials.setUser(adminUser);
 
             // Salva usando il metodo specifico per admin
             credentialsService.saveAdminCredentials(adminCredentials, adminUser);
-
+            
+            // Righe di debug
             System.out.println("✅ Utente amministratore creato con successo!");
             System.out.println("Username: admin");
             System.out.println("Password: admin");
@@ -44,6 +46,7 @@ public class DataInitializer implements ApplicationRunner {
         }
         
         // Crea utente di test per debugging
+        // Controlla se esiste già un utente di nome mario
         if (credentialsService.getCredentials("mario") == null) {
             // Crea l'utente di test
             User testUser = new User();
@@ -61,7 +64,7 @@ public class DataInitializer implements ApplicationRunner {
 
             // Salva usando il metodo per utenti normali
             credentialsService.saveCredentials(testCredentials, testUser);
-
+            // Righe di debug
             System.out.println("✅ Utente di test creato!");
             System.out.println("Username: mario");
             System.out.println("Password: admin");

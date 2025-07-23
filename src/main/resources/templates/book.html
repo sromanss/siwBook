@@ -16,6 +16,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             background: #f8f9fa;
         }
+		/* stile per box libro */
         .book-details {
             background: #f8f9fa;
             border-radius: 8px;
@@ -27,7 +28,7 @@
             margin-bottom: 1rem;
         }
         
-        /* ✅ SISTEMA STELLE CORRETTO */
+        /* stelle per recensioni */
         .stars-container {
             position: relative;
             display: inline-block;
@@ -90,7 +91,7 @@
     <div class="container mt-4">
         <!-- Messaggi di errore -->
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>⚠️ Errore!</strong> 
+            <strong>⚠️ Errore!</strong> 	<!-- gestisce tutti i casi di errore -->
             <span th:switch="${param.error[0]}">
                 <span th:case="'already_reviewed'">
                     Hai già recensito questo libro. Puoi modificare o eliminare la tua recensione esistente.
@@ -149,9 +150,11 @@
             <div class="col-md-4">
                 <!-- Immagine del libro -->
                 <div class="text-center mb-4">
+					<!-- se ha immagine -->
                     <img th:if="${book.photoFileName != null}" 
                          th:src="@{'/images/' + ${book.photoFileName}}" 
                          class="book-cover" alt="Copertina libro">
+					<!-- se non c'è immagine -->
                     <div th:if="${book.photoFileName == null}" 
                          class="bg-secondary d-flex align-items-center justify-content-center book-cover">
                         <span class="text-white fs-1">��</span>
@@ -162,6 +165,7 @@
                 <div class="book-details">
                     <h5 class="mb-3">📋 Dettagli</h5>
                     <p class="mb-2">
+						<!-- anno di pubblicazione -->
                         <strong>Anno di pubblicazione:</strong><br>
                         <a th:href="@{'/books/search?search=' + ${book.year}}"
                            th:text="${book.year}"
@@ -169,6 +173,7 @@
                     </p>
                     
                     <p class="mb-3">
+						<!-- lista di autori -->
                         <strong>Autore/i:</strong><br>
                         <span th:each="author : ${book.authors}">
                             <a th:href="@{'/author/' + ${author.id}}" 
@@ -181,7 +186,7 @@
                     <div th:if="${book.reviews.size() > 0}" class="mb-3">
                         <strong>Recensioni:</strong><br>
                         <div class="d-flex align-items-center mb-1">
-                            <!-- ✅ SISTEMA STELLE CORRETTO -->
+                            
                             <span class="stars-container">
                                 <span th:each="star : ${#numbers.sequence(1, 5)}">
                                     <!-- Stella piena -->
@@ -194,6 +199,7 @@
                             </span>
                             <span class="ms-2 text-muted" th:text="${#numbers.formatDecimal(book.averageRating, 1, 1)} + '/5'"></span>
                         </div>
+						<!-- numero totale recensioni -->
                         <small class="text-muted">
                             <span th:text="${book.totalReviews}"></span> recensioni totali
                         </small>
@@ -201,7 +207,9 @@
                     
                     <!-- Pulsanti admin -->
                     <div sec:authorize="hasRole('ADMIN')" class="mt-3">
+						<!-- edit -->
                         <a th:href="@{'/admin/books/' + ${book.id} + '/edit'}" class="btn btn-warning btn-sm">Modifica</a>
+						<!-- delete -->
                         <form th:action="@{'/admin/books/' + ${book.id} + '/delete'}" method="post" class="d-inline">
                             <button type="submit" class="btn btn-danger btn-sm" 
                                     onclick="return confirm('Sei sicuro di voler eliminare questo libro?')">Elimina</button>
@@ -216,10 +224,12 @@
                 <div class="mb-4">
                     <h1 th:text="${book.title}" class="display-5 mb-2">Titolo del Libro</h1>
                     <p class="lead text-muted">
+						<!-- autori del libro-->
                         <span th:each="author, iterStat : ${book.authors}">
                             <span th:text="${author.name + ' ' + author.surname}"></span>
                             <span th:if="${!iterStat.last}">, </span>
                         </span>
+						<!-- anno di pubblicazione cliccabile -->
                         • <a th:href="@{'/books/search?search=' + ${book.year}}"
                              th:text="${book.year}"
                              class="year-link"></a>
@@ -234,7 +244,7 @@
                             <h3 class="mb-1">💬 Recensioni</h3>
                             <div th:if="${book.reviews.size() > 0}">
                                 <div class="d-flex align-items-center">
-                                    <!-- ✅ SISTEMA STELLE CORRETTO -->
+                                    
                                     <span class="stars-container">
                                         <span th:each="star : ${#numbers.sequence(1, 5)}">
                                             <!-- Stella piena -->
@@ -245,6 +255,7 @@
                                             <span th:if="${star > book.averageRating and (star - 0.5) > book.averageRating}" class="star-empty">★</span>
                                         </span>
                                     </span>
+									<!-- media recensioni in numero -->
                                     <span class="ms-2 me-3" th:text="${#numbers.formatDecimal(book.averageRating, 1, 1)} + '/5'"></span>
                                     <small class="text-muted">
                                         (<span th:text="${book.totalReviews}"></span> recensioni)
@@ -265,7 +276,7 @@
                                    class="btn btn-success btn-sm">
                                     ✏️ Scrivi una recensione
                                 </a>
-                                <!-- Utenti non autenticati -->
+                                <!-- Utenti non autenticati, redirect a pagina di login -->
                                 <a sec:authorize="!isAuthenticated()" 
                                    th:href="@{/login}" 
                                    class="btn btn-success btn-sm">
@@ -343,7 +354,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center">
                                     <small class="text-muted">
-                                        <!-- Gestione corretta per entrambi i tipi di utenti -->
+                                        <!-- Gestione corretta per entrambi i tipi di utenti (nome utente) -->
                                         <span th:if="${#strings.contains(review.credentials.username, '@')}">
                                             👤 di <strong th:text="${#strings.substringBefore(review.credentials.username, '@')}"></strong>
                                         </span>
@@ -352,7 +363,7 @@
                                         </span>
                                     </small>
                                     
-                                    <!-- ✅ PULSANTI AZIONE SEMPLIFICATI -->
+                                    
                                     <div>
                                         <!-- PROPRIETARIO: Pulsanti Modifica/Elimina (solo se NON è admin) -->
                                         <div sec:authorize="isAuthenticated() and !hasRole('ADMIN')" 

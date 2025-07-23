@@ -50,4 +50,3 @@ INSERT INTO book_author(book_id, author_id) VALUES (13, 10);
 INSERT INTO book_author(book_id, author_id) VALUES (14, 10);
 INSERT INTO book_author(book_id, author_id) VALUES (15, 11);
 
--- NESSUNA RECENSIONE NEL FILE import.sql

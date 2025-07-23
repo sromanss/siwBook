@@ -30,7 +30,7 @@
             justify-content: flex-end;
         }
         
-        /* ✅ SISTEMA STELLE CORRETTO */
+        /* sistema per le stelle */
         .stars-container {
             position: relative;
             display: inline-block;
@@ -101,7 +101,7 @@
                                 <i class="fas fa-sort"></i> Ordina per
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-                                <!-- INSERIMENTO (era "Ordine predefinito") -->
+                                <!-- INSERIMENTO  -->
                                 <li th:if="${param.search == null}">
                                     <a class="dropdown-item" 
                                        th:href="@{/books(sort='insertion', sortDirection='desc')}"
@@ -269,6 +269,7 @@
                                 <p class="card-text mb-1">
                                     <small class="text-muted">Anno: <span th:text="${book.year}"></span></small>
                                 </p>
+								<!-- nome e cognome autore cliccabili-->
                                 <p class="card-text mb-2">
                                     <small class="text-muted">
                                         <span th:each="author, iterStat : ${book.authors}">
@@ -303,7 +304,7 @@
                                         <small class="text-muted ms-1">(<span th:text="${book.reviews.size()}"></span>)</small>
                                     </div>
                                 </div>
-                                
+                                <!-- pulsante per redirect a pagina del libro-->
                                 <a th:href="@{'/book/' + ${book.id}}" class="btn btn-sm btn-primary">Dettagli</a>
                             </div>
                         </div>

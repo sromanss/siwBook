@@ -63,7 +63,7 @@ public class BookService {
     public List<Book> searchByTitleAuthorOrYear(String searchTerm) {
         Set<Book> results = new HashSet<>();
         
-        // Cerca per titolo e autori
+        // Cerca per titolo, nome e cognome
         results.addAll(bookRepository.findByTitleContainingIgnoreCase(searchTerm));
         results.addAll(bookRepository.findByAuthorsNameContainingIgnoreCase(searchTerm));
         results.addAll(bookRepository.findByAuthorsSurnameContainingIgnoreCase(searchTerm));
@@ -71,6 +71,7 @@ public class BookService {
         // Prova a convertire il termine di ricerca in anno
         try {
             Integer year = Integer.parseInt(searchTerm);
+            // se possibile, cerca per anno
             results.addAll(bookRepository.findByYear(year));
         } catch (NumberFormatException e) {
             // Se non è un numero, ignora la ricerca per anno

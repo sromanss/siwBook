@@ -47,7 +47,7 @@ public class Review {
         this.credentials = credentials;
     }
 
-    // Metodo per impostare automaticamente la data di creazione
+    // Metodo per impostare automaticamente la data di creazione (eseguito automaticamente prima del salvataggio)
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

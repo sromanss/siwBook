@@ -21,8 +21,8 @@ public class AuthorController {
     private AuthorService authorService;
 
     @GetMapping("/authors")
-    public String authors(@RequestParam(name = "sort", required = false) String sort,
-                         @RequestParam(name = "sortDirection", required = false) String sortDirection,
+    public String authors(@RequestParam(name = "sort", required = false) String sort,	//parametro opzionale per tipo di ordinamento
+                         @RequestParam(name = "sortDirection", required = false) String sortDirection,	//parametro opzionale per direzione
                          Model model) {
         
         // Recupera tutti gli autori
@@ -34,7 +34,7 @@ public class AuthorController {
         
         // Applica l'ordinamento in base al parametro
         if (sort != null) {
-            switch (sort) {
+            switch (sort) {	//switch sul tipo di ordinamento richiesto
                 case "insertion":
                     // Ordinamento per ID (più recenti primi se desc, più vecchi primi se asc)
                     authorList.sort(Comparator.comparing(Author::getId));
@@ -60,33 +60,37 @@ public class AuthorController {
             authorList.sort(Comparator.comparing(Author::getId).reversed());
         }
         
-        model.addAttribute("authors", authorList);
-        model.addAttribute("currentSort", sort);
-        model.addAttribute("currentSortDirection", sortDirection);
-        return "authors";
+        model.addAttribute("authors", authorList);	//aggiunge lista autori ordinata al model
+        model.addAttribute("currentSort", sort);	//aggiunge criterio ordinamento corrente
+        model.addAttribute("currentSortDirection", sortDirection);	//aggiunge direzione ordinamento corrente
+        return "authors";	//restituisce il template authors.html
     }
-
+    
     @GetMapping("/author/{id}")
     public String author(@PathVariable("id") Long id, Model model) {
-        Optional<Author> optionalAuthor = authorService.findById(id);
+        Optional<Author> optionalAuthor = authorService.findById(id);	//cerca autore per id (potrebbe non esistere)
         if (optionalAuthor.isPresent()) {
+        	// se l'autore è stato trovato restituisce author.html con autore aggiunto al model
             model.addAttribute("author", optionalAuthor.get());
             return "author";
         }
+        // se autore non trovato redirect alla lista
         return "redirect:/authors";
     }
-
+    
     @GetMapping("/authors/search")
-    public String searchAuthors(@RequestParam(value = "search", required = false) String search,
-                               @RequestParam(name = "sort", required = false) String sort,
-                               @RequestParam(name = "sortDirection", required = false) String sortDirection,
+    public String searchAuthors(@RequestParam(value = "search", required = false) String search,	//termine di ricerca (opzionale)
+                               @RequestParam(name = "sort", required = false) String sort,	//criterio di ordinamento (opzionale)
+                               @RequestParam(name = "sortDirection", required = false) String sortDirection,	//direzione ordinamento (opzionale)
                                Model model) {
         
-        List<Author> searchResults;
+        List<Author> searchResults;	//crea lista per contenere i risultati della ricerca
         
         if (search != null && !search.trim().isEmpty()) {
+        	//se c'è un termine di ricerca esegue ricerca tramite service per nome, cognome o nazionalità
             searchResults = authorService.searchByNameSurnameOrNationality(search);
         } else {
+        	//altrimenti prendi tutti gli autori e convertili in lista
             searchResults = StreamSupport.stream(authorService.findAll().spliterator(), false)
                                        .collect(Collectors.toList());
         }
@@ -118,7 +122,7 @@ public class AuthorController {
             // Ordinamento predefinito per ID decrescente (più recenti primi)
             searchResults.sort(Comparator.comparing(Author::getId).reversed());
         }
-        
+        //aggiunge risultati ricerca al model e restiuisce stesso template della lista normale
         model.addAttribute("authors", searchResults);
         model.addAttribute("currentSort", sort);
         model.addAttribute("currentSortDirection", sortDirection);
